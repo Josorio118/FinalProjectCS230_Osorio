@@ -60,8 +60,20 @@ def generate_bar_chart(df):
 
 # [MAP] Generate interactive map
 # [PY5] Dictionary access in tooltip, [PY4] numpy.mean
+def assign_colors(types):
+    return [
+        [0, 200, 0, 160] if t == 'small_airport' else
+        [255, 165, 0, 160] if t == 'medium_airport' else
+        [200, 0, 0, 160] if t == 'large_airport' else
+        [100, 100, 255, 160] if t == 'heliport' else
+        [150, 150, 150, 160]  # default
+        for t in types
+    ]
 
 def generate_map(df):
+    df = df.copy()
+    df['color'] = assign_colors(df['type'])  # Use list comprehension
+
     view_state = pdk.ViewState(
         latitude=np.mean(df['latitude_deg']),
         longitude=np.mean(df['longitude_deg']),
@@ -72,17 +84,18 @@ def generate_map(df):
         'ScatterplotLayer',
         data=df,
         get_position='[longitude_deg, latitude_deg]',
+        get_color='color',  # Now pulling from DataFrame column
         get_radius=1000,
-        get_color='[0, 100, 255, 160]',
         pickable=True)
 
-    tooltip = {"html": "<b>{name}</b><br />{municipality}",
+    tooltip = {"html": "<b>{name}</b><br />{type}<br />{municipality}",
                "style": {"backgroundColor": "steelblue", "color": "white"}}
 
-    return pdk.Deck(map_style='mapbox://styles/mapbox/light-v9',
-                    initial_view_state=view_state,
-                    layers=[layer],
-                    tooltip=tooltip)
+    return pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=view_state,
+        layers=[layer],
+        tooltip=tooltip)
 
 # Streamlit UI
 st.set_page_config(page_title="New England Airports Explorer", layout="wide")
