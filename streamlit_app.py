@@ -66,6 +66,8 @@ def assign_colors(types):
         [255, 165, 0, 160] if t == 'medium_airport' else
         [200, 0, 0, 160] if t == 'large_airport' else
         [100, 100, 255, 160] if t == 'heliport' else
+        [175, 50, 255, 100] if t == 'seaplane_base' else
+        [100,200,200,0] if t == 'baloonport' else
         [150, 150, 150, 160]  # default
         for t in types
     ]
