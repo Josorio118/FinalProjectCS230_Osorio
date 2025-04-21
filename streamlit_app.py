@@ -20,7 +20,7 @@ import pydeck as pdk
 
 def load_data():
     try:
-        df = pd.read_excel("airports.csv")
+        df = pd.read_csv("airports.csv")
         states = ['US-MA', 'US-CT', 'US-RI', 'US-NH', 'US-VT', 'US-ME']
         df = df[df['iso_region'].isin(states)].copy()
         df.dropna(subset=['latitude_deg', 'longitude_deg', 'elevation_ft'], inplace=True)
