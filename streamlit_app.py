@@ -1,12 +1,12 @@
 """
-Name:       Your Name
-CS230:      Section XXX
-Data:       New England Airports (from ourairports.com)
-URL:
+Name:       Julian Osorio
+CS230:      Section 6
+Data:       New England Airports
+URL: https://ourairports.com/data/
 
 Description:
 This program is an interactive data explorer for New England airports. It lets users filter by state, airport type,
-and elevation, and view visualizations such as a pie chart, bar chart, and interactive map using Streamlit.
+and elevation, and view visualizations such as a pie chart, bar chart, and interactive map using Streamlit. You can also filter whether the Airport has scheduled service or not. 
 """
 
 import streamlit as st
@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 
 
-# [DA1] Load and clean data
-# [PY3] Error checking with try/except
+# Load and clean data to show only New England Airports
+# [PY3] Error checking
 
 def load_data():
     try:
@@ -31,37 +31,37 @@ def load_data():
         st.error(f"Error loading data: {e}")
         return pd.DataFrame()
 
-# [PY1] Function with default parameter
+# Default parameter
 def filter_data(df, states, types, min_elev=0):
     return df[(df['iso_region'].isin(states)) &
               (df['type'].isin(types)) &
               (df['elevation_ft'] >= min_elev)]
 
-# [PY2] Return multiple values
+# Return states
 def count_by_state(df):
     counts = df['iso_region'].value_counts()
     return counts.index.tolist(), counts.values.tolist()
 
-# [VIZ1] Pie chart
+# Pie chart
 def generate_pie_chart(labels, sizes):
     fig, ax = plt.subplots()
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
     ax.axis('equal')
     return fig
 
-# [VIZ2] Bar chart for top elevations
+# Bar chart for top elevations
 def generate_bar_chart(df):
-    top_df = df.sort_values(by='elevation_ft', ascending=False).head(10)
+    top_df = df.sort_values(by='elevation_ft', ascending=False).head(20)
     fig, ax = plt.subplots()
-    ax.bar(top_df['name'], top_df['elevation_ft'], color='steelblue')
+    ax.bar(top_df['name'], top_df['elevation_ft'], color='red')
     ax.set_xlabel("Airport")
     ax.set_ylabel("Elevation (ft)")
     ax.set_title("Top 10 Highest Elevation Airports")
     plt.xticks(rotation=45, ha='right')
     return fig
 
-# [MAP] Generate interactive map
-# [PY5] Dictionary access in tooltip, [PY4] numpy.mean
+# MAP
+# Dictionary/tooltip
 
 # assign color based on airport type
 def assign_colors(types):
@@ -72,13 +72,13 @@ def assign_colors(types):
         [100, 100, 255, 160] if t == 'heliport' else
         [175, 50, 255, 100] if t == 'seaplane_base' else
         [100,200,200,0] if t == 'balloonport' else
-        [150, 150, 150, 160]
+        [150, 150, 150, 160] #default gray(closed airports)
         for t in types
     ]
 
 def generate_map(df):
     df = df.copy()
-    df['color'] = assign_colors(df['type'])  # Use list comprehension
+    df['color'] = assign_colors(df['type'])
 
     view_state = pdk.ViewState(
         latitude=np.mean(df['latitude_deg']),
