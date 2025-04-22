@@ -15,12 +15,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pydeck as pdk
 
+
 # [DA1] Load and clean data
 # [PY3] Error checking with try/except
 
 def load_data():
     try:
         df = pd.read_csv("airports.csv")
+        df.columns = df.columns.str.strip()
         states = ['US-MA', 'US-CT', 'US-RI', 'US-NH', 'US-VT', 'US-ME']
         df = df[df['iso_region'].isin(states)].copy()
         df.dropna(subset=['latitude_deg', 'longitude_deg', 'elevation_ft'], inplace=True)
@@ -51,7 +53,7 @@ def generate_pie_chart(labels, sizes):
 def generate_bar_chart(df):
     top_df = df.sort_values(by='elevation_ft', ascending=False).head(10)
     fig, ax = plt.subplots()
-    ax.bar(top_df['name'], top_df['elevation_ft'], color='skyblue')
+    ax.bar(top_df['name'], top_df['elevation_ft'], color='steelblue')
     ax.set_xlabel("Airport")
     ax.set_ylabel("Elevation (ft)")
     ax.set_title("Top 10 Highest Elevation Airports")
@@ -60,6 +62,8 @@ def generate_bar_chart(df):
 
 # [MAP] Generate interactive map
 # [PY5] Dictionary access in tooltip, [PY4] numpy.mean
+
+# assign color based on airport type
 def assign_colors(types):
     return [
         [0, 200, 0, 160] if t == 'small_airport' else
@@ -68,7 +72,7 @@ def assign_colors(types):
         [100, 100, 255, 160] if t == 'heliport' else
         [175, 50, 255, 100] if t == 'seaplane_base' else
         [100,200,200,0] if t == 'balloonport' else
-        [150, 150, 150, 160]  # default
+        [150, 150, 150, 160]
         for t in types
     ]
 
@@ -79,7 +83,7 @@ def generate_map(df):
     view_state = pdk.ViewState(
         latitude=np.mean(df['latitude_deg']),
         longitude=np.mean(df['longitude_deg']),
-        zoom=6,
+        zoom=8,
         pitch=0)
 
     layer = pdk.Layer(
@@ -100,8 +104,8 @@ def generate_map(df):
         tooltip=tooltip)
 
 # Streamlit UI
-st.set_page_config(page_title="New England Airports Explorer", layout="wide")
-st.title("🛬 New England Airports Explorer")
+st.set_page_config(page_title="New England Airports Discovery", layout="wide")
+st.title(" New England Airports Discovery")
 st.markdown("Use the sidebar to filter and explore airport data.")
 
 # [ST4] Sidebar layout
@@ -117,6 +121,10 @@ types = st.sidebar.multiselect("Select Airport Type(s)", options=data['type'].un
 # [ST3] Elevation slider
 min_elev = st.sidebar.slider("Minimum Elevation (ft)", min_value=0, max_value=5000, value=0)
 
+scheduled_only = st.sidebar.checkbox("Only show airports with scheduled service")
+if scheduled_only:
+    data = data[data['scheduled_service'] == 'yes']
+
 # Filter data
 filtered = filter_data(data, states, types, min_elev)
 
@@ -128,7 +136,7 @@ if not filtered.empty:
     labels, sizes = count_by_state(filtered)
     st.pyplot(generate_pie_chart(labels, sizes))
 
-    st.subheader("Top Elevation Airports")
+    st.subheader("Top Highest Elevation Airports")
     st.pyplot(generate_bar_chart(filtered))
 else:
     st.warning("No airports match the selected criteria.")
