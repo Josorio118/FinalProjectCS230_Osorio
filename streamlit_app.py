@@ -56,7 +56,7 @@ def generate_bar_chart(df):
     ax.bar(top_df['name'], top_df['elevation_ft'], color='red')
     ax.set_xlabel("Airport")
     ax.set_ylabel("Elevation (ft)")
-    ax.set_title("Top 10 Highest Elevation Airports")
+    ax.set_title("Top 20 Highest Elevation Airports")
     plt.xticks(rotation=45, ha='right')
     return fig
 
