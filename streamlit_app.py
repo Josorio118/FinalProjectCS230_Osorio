@@ -6,7 +6,7 @@ URL: https://ourairports.com/data/
 
 Description:
 This program is an interactive data explorer for New England airports. It lets users filter by state, airport type,
-and elevation, and view visualizations such as a pie chart, bar chart, and interactive map using Streamlit. You can also filter whether the Airport has scheduled service or not. 
+and elevation, and view visualizations such as a pie chart, bar chart, and interactive map using Streamlit. You can also filter whether the Airport has scheduled service or not.
 """
 
 import streamlit as st
@@ -90,7 +90,7 @@ def generate_map(df):
         'ScatterplotLayer',
         data=df,
         get_position='[longitude_deg, latitude_deg]',
-        get_color='color',  # Now pulling from DataFrame column
+        get_color='color',
         get_radius=1000,
         pickable=True)
 
@@ -140,3 +140,4 @@ if not filtered.empty:
     st.pyplot(generate_bar_chart(filtered))
 else:
     st.warning("No airports match the selected criteria.")
+
